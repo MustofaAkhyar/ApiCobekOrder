@@ -12,6 +12,8 @@ Route::get('/menus/{menu}', [MenuController::class, 'show']); // detail menu
 // Orders
 Route::post('/orders', [OrderController::class, 'store']);  // checkout → buat order + items
 Route::get('/orders/{order}', [OrderController::class, 'show']); // detail order + items
+Route::patch('/orders/{order}/pay', [OrderController::class, 'markPaid']);
+Route::patch('/orders/{order}/cancel', [OrderController::class, 'markCancelled']);
 
 // (Opsional) riwayat per customer
 Route::get('/customers/history', [OrderController::class, 'historyByCustomer']);

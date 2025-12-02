@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\PurchaseHistory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 
@@ -118,4 +119,54 @@ class OrderController extends Controller
 
         return response()->json($q->paginate(10));
     }
+
+    protected function autoExpireIfNeeded(Order $order): Order
+    {
+        if (
+            $order->status === 'unpaid' &&
+            $order->expires_at &&
+            now()->greaterThan($order->expires_at)
+        ) {
+            $order->update(['status' => 'expired']);
+        }
+
+        return $order->fresh();
+    }
+
+    public function markPaid(Order $order)
+    {
+        $order = $this->autoExpireIfNeeded($order);
+
+        // kalau sudah bukan unpaid, tidak boleh dibayar lagi
+        if ($order->status !== 'unpaid') {
+            return response()->json([
+                'message' => "Order tidak dapat dibayar. Status sekarang: {$order->status}."
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $order->update([
+            'status'  => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        return response()->json($order->fresh('items'));
+    }
+
+    public function markCancelled(Order $order)
+    {
+        $order = $this->autoExpireIfNeeded($order);
+
+        if ($order->status !== 'unpaid') {
+            return response()->json([
+                'message' => "Order tidak dapat dibatalkan. Status sekarang: {$order->status}."
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $order->update([
+            'status'  => 'cancelled',
+        ]);
+
+        return response()->json($order->fresh('items'));
+    }
+
 }
