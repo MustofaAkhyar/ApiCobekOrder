@@ -10,8 +10,8 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $data = [
-            ['name' => 'Makanan',  'is_active' => true, 'sort' => 1],
-            ['name' => 'Paket',    'is_active' => true, 'sort' => 2],
+            ['name' => 'Paket',    'is_active' => true, 'sort' => 1],
+            ['name' => 'Makanan',  'is_active' => true, 'sort' => 2],
             ['name' => 'Minuman',  'is_active' => true, 'sort' => 3],
             ['name' => 'Tambahan', 'is_active' => true, 'sort' => 4],
         ];
